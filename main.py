@@ -1,44 +1,58 @@
 import sys
+from random import randint
 
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QAction, QIcon, QKeySequence
 from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QMainWindow,
-    QCheckBox,
-    QStatusBar,
-    QToolBar,
-    
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
-from layout_colorwidget import Color
+
+class AnotherWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent,
+    it will appear as a free-floating window.
+    """
+
+    def __init__(self):
+        super().__init__()
+        layout = QVBoxLayout()
+        self.label = QLabel("Another Window % d" % randint(0, 100))
+        layout.addWidget(self.label)
+        self.setLayout(layout)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("My App")
+        self.window1 = AnotherWindow()
+        self.window2 = AnotherWindow()
 
-        label = QLabel("Hello!")
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout = QVBoxLayout()
+        button1 = QPushButton("Push for Window 1")
+        button1.clicked.connect(
+            lambda checked: self.toggle_window(self.window1),
+        )
+        layout.addWidget(button1)
 
-        self.setCentralWidget(label)
+        button2 = QPushButton("Push for Window 2")
+        button2.clicked.connect(
+            lambda checked: self.toggle_window(self.window2),
+        )
+        layout.addWidget(button2)
 
-        toolbar = QToolBar("My main toolbar")
-        toolbar.setIconSize(QSize(16, 16))
-        self.addToolBar(toolbar)
-        
-        button_action = QAction(QIcon("bug.png"), "Your button", self)
-        button_action.setStatusTip("This is your button")
-        button_action.triggered.connect(self.toolbar_button_clicked)
-        button_action.setCheckable(True)
-        toolbar.addAction(button_action)
+        w = QWidget()
+        w.setLayout(layout)
+        self.setCentralWidget(w)
 
-        self.setStatusBar(QStatusBar(self))
-
-    def toolbar_button_clicked(self, s):
-        print("click", s)
+    def toggle_window(self, window):
+        if window.isVisible():
+            window.hide()
+        else:
+            window.show()
 
 
 app = QApplication(sys.argv)
